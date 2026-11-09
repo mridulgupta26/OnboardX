@@ -1,0 +1,128 @@
+.login-page {
+	min-height: 100vh;
+	min-height: 100dvh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 22px;
+}
+
+.login-page .login-card,
+.login-page .SignUp-card,
+.login-page .otp-card {
+	width: min(100%, 1000px);
+	display: flex;
+	border-radius: 20px;
+	overflow: hidden;
+}
+
+.login-page .left-section {
+	width: 38%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 12px;
+}
+
+.login-page .right-section {
+	width: 62%;
+	display: flex;
+	justify-content: center;
+}
+
+.login-page .form-container {
+	width: 85%;
+}
+
+.login-page .form-container form {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+}
+
+.login-page .left-section h1 {
+	font-size: 40px;
+}
+
+.login-page .left-section p {
+	font-size: 14px;
+}
+
+.login-page .right-section h2 {
+	font-size: 29px;
+}
+
+.login-page .subtitle {
+	font-size: 13px;
+}
+
+.login-page .forgot-password {
+	width: auto;
+	align-self: flex-end;
+	padding: 2px 0;
+	border: 0;
+	background: transparent;
+	box-shadow: none;
+	color: #2873b9;
+	font-size: 11px;
+}
+
+.login-page .forgot-password:hover {
+	transform: none;
+	background: transparent;
+	box-shadow: none;
+	color: #0b4f91;
+}
+
+.login-page .error-message {
+	color: #b54141;
+	font-size: 11px;
+}
+
+.login-page .signup-text {
+	text-align: center;
+}
+
+.login-page .signup-link {
+	color: #1d6cb4;
+	font-weight: 700;
+	text-decoration: none;
+}
+
+.login-page .signup-link:hover {
+	color: #0b4f91;
+	text-decoration: underline;
+}
+
+@media (max-width: 700px) {
+	.login-page {
+		align-items: flex-start;
+		padding: 12px;
+	}
+
+	.login-page .login-card,
+	.login-page .SignUp-card,
+	.login-page .otp-card {
+		width: min(100%, 520px);
+		margin: auto;
+		flex-direction: column;
+	}
+
+	.login-page .left-section,
+	.login-page .right-section {
+		width: 100%;
+	}
+
+	.login-page .form-container {
+		width: 100%;
+	}
+
+	.login-page .left-section h1 {
+		font-size: 20px;
+	}
+
+	.login-page .right-section h2 {
+		font-size: 24px;
+	}
+}

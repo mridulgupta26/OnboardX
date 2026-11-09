@@ -1,0 +1,462 @@
+.profile-container {
+  min-height: 100vh;
+  padding: 30px;
+  background: #f4f7fc;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.profile-header {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 25px 30px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  margin-bottom: 30px;
+}
+
+.profile-avatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2563eb, #1e40af);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  color: white;
+}
+
+.profile-info {
+  flex: 1;
+}
+
+.profile-info h1 {
+  margin: 0;
+  color: #1f2937;
+}
+
+.profile-info p {
+  margin: 5px 0 15px;
+  color: #6b7280;
+}
+
+.progress-bar {
+  width: 280px;
+  height: 10px;
+  background: #e5e7eb;
+  border-radius: 50px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  width: 80%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    #22c55e,
+    #16a34a
+  );
+}
+
+.edit-btn {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 12px 22px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.edit-btn:hover {
+  background: #1d4ed8;
+  transform: translateY(-2px);
+}
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(320px, 1fr)
+  );
+  gap: 20px;
+}
+
+.profile-card {
+  background: white;
+  padding: 25px;
+  border-radius: 18px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.06);
+  transition: 0.3s;
+}
+
+.profile-card:hover {
+  transform: translateY(-5px);
+}
+
+.profile-card h2 {
+  margin-bottom: 20px;
+  color: #111827;
+  font-size: 20px;
+}
+
+.profile-card p {
+  margin-bottom: 12px;
+  color: #4b5563;
+}
+
+.skills-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.skill-badge {
+  background: #dbeafe;
+  color: #2563eb;
+  padding: 8px 15px;
+  border-radius: 30px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.secondary-btn {
+  margin-top: 10px;
+  background: #f3f4f6;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.secondary-btn:hover {
+  background: #e5e7eb;
+}
+
+.profile-actions {
+  margin-top: 30px;
+}
+
+.dashboard-btn {
+  background: #111827;
+  color: white;
+  border: none;
+  padding: 14px 24px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.dashboard-btn:hover {
+  background: #000;
+  transform: translateY(-2px);
+}
+
+.profile-card ul {
+  padding-left: 20px;
+}
+
+.profile-card li {
+  margin-bottom: 10px;
+  color: #4b5563;
+}
+
+@media (max-width: 768px) {
+  .profile-header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .progress-bar {
+    width: 100%;
+  }
+
+  .edit-btn {
+    width: 100%;
+  }
+}
+
+.theme-light {
+  background: #f4f7fc;
+  color: #111827;
+}
+
+/* SOFT THEME */
+
+.theme-soft {
+  background: #f6eaf0;
+  color: #472c3d;
+}
+
+
+.theme-soft .profile-header,
+.theme-soft .profile-card {
+  background: #fffafc;
+  border: 1px solid #f1d7e2;
+}
+
+.theme-soft .profile-info h1,
+.theme-soft .profile-info p,
+.theme-soft .profile-card h2,
+.theme-soft .profile-card p,
+.theme-soft .profile-card li,
+.theme-soft .profile-card strong,
+.theme-soft .profile-actions,
+.theme-soft span {
+  color: #472c3d
+}
+
+.theme-soft .skill-badge {
+  background: #f3c4d6;
+  color: #7a3552;
+}
+
+.theme-soft .progress-bar {
+  background: #ddd6fe;
+}
+
+.theme-soft .dashboard-btn,
+.theme-soft .edit-btn {
+  background: #c85a87;
+  color: white;
+}
+
+.theme-soft .dashboard-btn:hover,
+.theme-soft .edit-btn:hover {
+  background: #b54876;
+}
+
+
+.theme-soft .profile-avatar {
+  background: linear-gradient(
+    135deg,
+    #c85a87,
+    #a03a63
+  );
+}
+
+
+.theme-soft .secondary-btn {
+  background: #ede9fe;
+  color: #6b21a8;
+}
+
+.theme-soft .secondary-btn:hover {
+  background: #ddd6fe;
+}
+
+
+
+.theme-dark {
+  background: #0f172a;
+  color: #ffffff;
+}
+
+
+
+.theme-dark .profile-header,
+.theme-dark .profile-card {
+  background: #1e293b;
+  border: 1px solid #334155;
+}
+
+
+
+.theme-dark .profile-info h1,
+.theme-dark .profile-info p,
+.theme-dark .profile-card h2,
+.theme-dark .profile-card p,
+.theme-dark .profile-card li,
+.theme-dark .profile-card strong,
+.theme-dark .profile-actions,
+.theme-dark span {
+  color: #ffffff !important;
+}
+
+
+
+.theme-dark .progress-bar {
+  background: #334155;
+}
+
+
+
+.theme-dark .skill-badge {
+  background: #2563eb;
+  color: #ffffff !important;
+}
+
+
+
+.theme-dark .dashboard-btn {
+  background: #2563eb;
+  color: white;
+}
+
+.theme-dark .dashboard-btn:hover {
+  background: #1d4ed8;
+}
+
+.theme-dark .secondary-btn {
+  background: #334155;
+  color: white;
+}
+
+.theme-dark .secondary-btn:hover {
+  background: #475569;
+}
+
+.avatar-options {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.avatar-options span {
+  font-size: 24px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 10px;
+  transition: 0.3s;
+}
+
+.avatar-options span:hover {
+  transform: scale(1.1);
+  background: rgba(37, 99, 235, 0.1);
+}
+
+.uploaded-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.upload-btn {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 10px 16px;
+  background: #2563eb;
+  color: white;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.3s;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.upload-btn:hover {
+  background: #1d4ed8;
+  transform: translateY(-2px);
+}
+
+.edit-profile-btn {
+  margin-top: 12px;
+  padding: 8px 16px;
+  width: fit-content;
+
+  border: 1px solid rgba(37, 99, 235, 0.2);
+  border-radius: 10px;
+
+  background: rgba(37, 99, 235, 0.08);
+  color: #2563eb;
+
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+.edit-profile-btn:hover {
+  background: rgba(37, 99, 235, 0.15);
+}
+
+.profile-data-point input {
+  width: 180px;
+  height: 46px;
+
+  padding: 0 14px;
+
+  border: 1px solid #d9e2ec;
+  border-radius: 8px;
+
+  background: #ffffff;
+
+  font-size: 15px;
+  color: #0f172a;
+}
+
+.profile-data-point input:focus {
+  border-color: #2563eb;
+}
+
+.profile-data-point span {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+
+.profile-data-point strong {
+  color: #0f172a;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.profile-data-point {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.country-code-select {
+  width: 65px;
+  min-width: 65px;
+  max-width: 65px;
+  height: 48px;
+  border-radius: 12px;
+  border: 1px solid #dbe4f0;
+  padding: 0 4px;
+  font-size: 14px;
+  font-weight: 600;
+  background: #fff;
+  flex-shrink: 0;
+}
+
+.profile-data-point select {
+  width: 100%;
+  height: 50px;
+  border: 1px solid #dbe4f0;
+  border-radius: 14px;
+  padding: 0 14px;
+  font-size: 15px;
+  background: #fff;
+  cursor: pointer;
+  outline: none;
+  min-height: 50px;
+}
+
+.profile-skills-card {
+  position: relative;
+  z-index: 1;
+  margin-top: 30px;
+
+}
+
+.profile-information-card {
+  overflow: visible;
+}
+
+.profile-information-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+
+
