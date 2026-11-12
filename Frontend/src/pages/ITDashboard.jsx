@@ -17,6 +17,15 @@ import {
   LabelList,
 } from "recharts";
 
+import {
+  FiMail,
+  FiMonitor,
+  FiUsers,
+  FiLock,
+  FiHardDrive,
+} from "react-icons/fi";
+
+
 const modules = [
   {
     id: "dashboard",
@@ -928,26 +937,412 @@ setAssets(response.data);
 
 }
 
+const accessServiceDefinitions = [
+  { name: "Corporate Email", icon: <FiMail /> },
+  { name: "Outlook", icon: <FiMonitor /> },
+  { name: "Microsoft Teams", icon: <FiUsers /> },
+  { name: "VPN Access", icon: <FiLock /> },
+  { name: "Shared Drive", icon: <FiHardDrive /> },
+];
+const accessProfiles = [
+  ["Granted", "Granted", "Granted", "Pending", "Not Assigned"],
+  ["Granted", "Granted", "Granted", "Granted", "Granted"],
+  ["Pending", "Not Assigned", "Not Assigned", "Not Assigned", "Not Assigned"],
+];
+
 function AccessManagementModule() {
+  const [interns, setInterns] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedInternId, setSelectedInternId] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+  const [accessForm, setAccessForm] = useState({
+  corporateEmail: "",
+  vpn: "",
+  teams: "",
+  sharedDrive: "",
+});
+
+  useEffect(() => {
+    let isCurrent = true;
+    axios
+      .get("http://localhost:5000/api/auth/interns")
+      .then((response) => {
+        if (isCurrent) {
+          setInterns(Array.isArray(response.data) ? response.data : []);
+          setLoadError("");
+        }
+      })
+      .catch((error) => {
+        console.error("Unable to load interns for access management:", error);
+        if (isCurrent) setLoadError("Unable to load interns. Please try again.");
+      })
+      .finally(() => {
+        if (isCurrent) setIsLoading(false);
+      });
+
+    return () => {
+      isCurrent = false;
+    };
+  }, []);
+
+  
+  const internsWithAccess = useMemo(
+    () =>
+      interns.map((intern, index) => {
+        const access = intern.accessManagement || {};
+
+        const services = [
+  {
+    name: "Corporate Email",
+    value: access.corporateEmail?.value || "",
+    status: access.corporateEmail?.status || "Pending",
+  },
+
+  {
+    name: "Outlook",
+    value: access.outlook?.value || "",
+    status: access.outlook?.status || "Pending",
+  },
+
+  {
+    name: "Teams",
+    value: access.teams?.value || "",
+    status: access.teams?.status || "Pending",
+  },
+
+  {
+    name: "VPN",
+    value: access.vpn?.value || "",
+    status: access.vpn?.status || "Pending",
+  },
+
+  {
+    name: "Shared Drive",
+    value: access.sharedDrive?.value || "",
+    status: access.sharedDrive?.status || "Pending",
+  },
+];
+
+        const grantedCount = services.filter(
+          (service) => service.status === "Granted"
+        ).length;
+        const status =
+          grantedCount === services.length
+            ? "Ready"
+            : grantedCount > 0
+              ? "In Progress"
+              : "Pending";
+
+        return {
+          ...intern,
+          id: intern._id || intern.email || `${intern.fullName}-${index}`,
+          name: intern.fullName || intern.name || intern.email || "Unnamed intern",
+        email:
+  access.corporateEmail?.value ||
+  "Not Assigned",
+          searchEmail: intern.email || "",
+          designation:
+            intern.designation &&
+            !intern.designation.toLowerCase().includes("intern")
+              ? `${intern.designation} Intern`
+              : intern.designation || "Intern",
+          services,
+          status,
+        };
+      }),
+    [interns]
+  );
+
+  const filteredInterns = useMemo(() => {
+    const query = searchTerm.trim().toLowerCase();
+    return internsWithAccess.filter((intern) => {
+      const matchesSearch =
+        !query ||
+        intern.name.toLowerCase().includes(query) ||
+        (intern.email || "").toLowerCase().includes(query) ||
+        intern.searchEmail.toLowerCase().includes(query) ||
+        (intern.designation || "").toLowerCase().includes(query);
+      return matchesSearch;
+    });
+  }, [internsWithAccess, searchTerm]);
+  const selectedIntern =
+    filteredInterns.find((intern) => intern.id === selectedInternId) ||
+    filteredInterns[0];
+
+    useEffect(() => {
+  if (!selectedIntern) return;
+
+  const access =
+    selectedIntern.accessManagement || {};
+
+  setAccessForm({
+    corporateEmail:
+      access.corporateEmail?.value || "",
+
+    vpn:
+      access.vpn?.value || "",
+
+    teams:
+      access.teams?.value || "",
+
+    sharedDrive:
+      access.sharedDrive?.value || "",
+  });
+}, [selectedIntern]);
+
+  const readyInterns = internsWithAccess.filter(
+    (intern) => intern.status === "Ready"
+  ).length;
+  const pendingInterns = internsWithAccess.length - readyInterns;
+  const initials = (name) =>
+    name
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0])
+      .join("")
+      .toUpperCase();
+
+      const handleSaveAccess = async () => {
+  try {
+    await axios.put(
+      `http://localhost:5000/api/auth/access/${selectedIntern.searchEmail}`,
+      {
+        accessManagement: {
+          corporateEmail: {
+            value: accessForm.corporateEmail,
+            status: "Granted",
+          },
+
+          outlook: {
+            value: accessForm.corporateEmail,
+            status: "Granted",
+          },
+
+          vpn: {
+            value: accessForm.vpn,
+            status: "Granted",
+          },
+
+          teams: {
+            value: accessForm.teams,
+            status: "Granted",
+          },
+
+          sharedDrive: {
+            value: accessForm.sharedDrive,
+            status: "Granted",
+          },
+        },
+      }
+    );
+
+  
+    window.location.reload();
+  } catch (error) {
+    console.error(error);
+  
+  }
+};
+
   return (
-    <section className="module-page">
+    <section className="module-page access-management-page">
       <div className="module-heading">
         <div>
-          <p className="workspace-eyebrow">
-            ACCESS MANAGEMENT
-          </p>
-
+          <p className="workspace-eyebrow">ACCESS MANAGEMENT</p>
           <h1>Access Management</h1>
-
-          <p>
-            Manage Outlook, Teams, VPN and software access.
-          </p>
+          <p>Manage employee accounts, communication tools and system access.</p>
         </div>
+      </div>
+
+      <div className="workspace-stat-grid access-management-stats">
+        <div className="workspace-stat">
+          <span className="stat-label">Total Interns</span>
+          <strong>{internsWithAccess.length}</strong>
+        </div>
+        <div className="workspace-stat">
+          <span className="stat-label">Ready</span>
+          <strong>{readyInterns}</strong>
+        </div>
+        <div className="workspace-stat">
+          <span className="stat-label">Pending</span>
+          <strong>{pendingInterns}</strong>
+        </div>
+      </div>
+
+      <div className="access-workspace-grid">
+        <section className="workspace-panel access-directory-panel">
+          <div className="access-panel-heading">
+            <div>
+              <h2>Intern Directory</h2>
+              <p>{filteredInterns.length} interns</p>
+            </div>
+          </div>
+          <label className="access-search">
+            <span className="sr-only">Search interns</span>
+            <input
+              type="search"
+              placeholder="Search interns..."
+              value={searchTerm}
+              onChange={(event) => setSearchTerm(event.target.value)}
+            />
+          </label>
+          <div className="access-intern-list" aria-label="Intern directory">
+            {isLoading ? (
+              <p className="access-empty-state">Loading interns...</p>
+            ) : loadError ? (
+              <p className="access-empty-state access-error">{loadError}</p>
+            ) : filteredInterns.length ? (
+              filteredInterns.map((intern) => (
+                <button
+                  type="button"
+                  className={`access-intern-row${selectedIntern?.id === intern.id ? " is-selected" : ""}`}
+                  key={intern.id}
+                  onClick={() => setSelectedInternId(intern.id)}
+                  aria-pressed={selectedIntern?.id === intern.id}
+                >
+                  <span className="access-avatar">{initials(intern.name)}</span>
+                  <span className="access-intern-copy">
+                    <strong>{intern.name}</strong>
+                    <small>{intern.designation || "Intern"}</small>
+                  </span>
+                  <span className={`access-status-badge status-${intern.status.toLowerCase().replace(/\s+/g, "-")}`}>
+                    {intern.status}
+                  </span>
+                </button>
+              ))
+            ) : (
+              <p className="access-empty-state">No interns match your search.</p>
+            )}
+          </div>
+        </section>
+
+        {selectedIntern ? (
+          <section className="workspace-panel access-details-panel">
+            <div className="access-selected-info">
+              <div className="access-avatar access-avatar-large">
+                {initials(selectedIntern.name)}
+              </div>
+              <div className="access-selected-copy">
+                <h2>{selectedIntern.name}</h2>
+                <p>{selectedIntern.designation || "Intern"}</p>
+                <span className="access-corporate-email">
+                  {selectedIntern.email}
+                </span>
+              </div>
+              <div
+  style={{
+    marginTop: "20px",
+    display: "grid",
+    gap: "10px",
+  }}
+>
+  <input
+    type="text"
+    placeholder="Corporate Email"
+    value={accessForm.corporateEmail}
+    onChange={(e) =>
+      setAccessForm({
+        ...accessForm,
+        corporateEmail: e.target.value,
+      })
+    }
+  />
+
+  <input
+    type="text"
+    placeholder="VPN ID"
+    value={accessForm.vpn}
+    onChange={(e) =>
+      setAccessForm({
+        ...accessForm,
+        vpn: e.target.value,
+      })
+    }
+  />
+
+  <input
+    type="text"
+    placeholder="Teams Account"
+    value={accessForm.teams}
+    onChange={(e) =>
+      setAccessForm({
+        ...accessForm,
+        teams: e.target.value,
+      })
+    }
+  />
+
+  <input
+    type="text"
+    placeholder="Shared Drive"
+    value={accessForm.sharedDrive}
+    onChange={(e) =>
+      setAccessForm({
+        ...accessForm,
+        sharedDrive: e.target.value,
+      })
+    }
+  />
+
+ <button
+  type="button"
+  className="text-action"
+  onClick={handleSaveAccess}
+>
+  Save Access
+</button>
+</div>
+
+
+            </div>
+            <div className="access-service-list">
+              {selectedIntern.services.map((service) => (
+                <div className="access-service-row" key={service.name}>
+  <span className="access-service-icon">
+    {service.icon}
+  </span>
+
+  <div style={{ flex: 1 }}>
+    <strong>
+      {service.name}
+    </strong>
+
+    <small
+      style={{
+        display: "block",
+        color: "#64748b",
+        marginTop: "4px",
+      }}
+    >
+      {service.value || "Not Assigned"}
+    </small>
+  </div>
+
+  <span
+    className={`access-status-badge status-${service.status
+      .toLowerCase()
+      .replace(/\s+/g, "-")}`}
+  >
+    {service.status}
+  </span>
+</div>
+              ))}
+            </div>
+          </section>
+        ) : (
+          <section className="workspace-panel access-no-selection">
+            <h2>{isLoading ? "Loading access details" : "No intern selected"}</h2>
+            <p>
+              {loadError || "Intern access details will appear here when an intern is available."}
+            </p>
+          </section>
+        )}
       </div>
     </section>
   );
 }
-
 function ITRequestsModule() {
   return (
     <section className="module-page">

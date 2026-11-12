@@ -291,6 +291,61 @@
 	background: var(--ws-surface-strong);
 	color: var(--ws-secondary);
 }
+.access-management-page { grid-template-rows: auto auto minmax(0, 1fr); gap: 12px; }
+.access-management-page .module-heading { min-height: 52px; }
+.access-management-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.access-management-stats .workspace-stat { grid-template-columns: 1fr; grid-template-rows: auto auto; row-gap: 6px; align-content: center; }
+.access-search { width: min(350px, 100%); }
+.access-search input {
+	width: 100%;
+	height: 34px;
+	padding: 0 11px;
+	border: 1px solid var(--ws-border);
+	border-radius: 8px;
+	outline: none;
+	background: var(--ws-surface-strong);
+	color: var(--ws-secondary);
+	font: inherit;
+	font-size: 9px;
+}
+.access-search input:focus {
+	border-color: color-mix(in srgb, var(--ws-blue) 52%, var(--ws-border));
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--ws-blue) 11%, transparent);
+}
+.access-search input::placeholder { color: var(--ws-muted); }
+.access-workspace-grid { min-width: 0; min-height: 0; display: grid; grid-template-columns: minmax(250px, 0.78fr) minmax(0, 1.5fr); gap: 12px; }
+.access-directory-panel { min-height: 0; display: flex; flex-direction: column; gap: 10px; overflow: hidden; }
+.access-panel-heading { min-width: 0; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.access-panel-heading h2, .access-selected-copy h2, .access-no-selection h2 { margin: 0; color: var(--ws-ink); font-size: 13px; font-weight: 700; }
+.access-panel-heading p, .access-selected-copy p, .access-no-selection p { margin: 4px 0 0; color: var(--ws-muted); font-size: 8px; }
+.access-panel-heading > span { flex: 0 0 auto; color: var(--ws-muted); font-size: 8px; }
+.access-intern-list { min-height: 0; flex: 1; overflow-y: auto; overscroll-behavior: contain; scrollbar-color: var(--ws-border) transparent; scrollbar-width: thin; }
+.access-intern-row { width: 100%; min-height: 54px; display: flex; align-items: center; gap: 9px; padding: 7px 5px; border: 0; border-top: 1px solid var(--ws-border); border-radius: 0; background: transparent; box-shadow: none; color: var(--ws-secondary); text-align: left; cursor: pointer; }
+.access-intern-row:hover, .access-intern-row.is-selected { transform: none; background: color-mix(in srgb, var(--ws-blue) 6%, var(--ws-surface-strong)); box-shadow: none; }
+.access-intern-row.is-selected { box-shadow: inset 2px 0 var(--ws-blue); }
+.access-avatar { width: 32px; height: 32px; flex: 0 0 32px; display: grid; place-items: center; border: 1px solid var(--ws-border); border-radius: 10px; background: var(--ws-blue-soft); color: var(--ws-blue-deep); font-size: 9px; font-weight: 750; }
+.access-intern-copy { min-width: 0; flex: 1; display: grid; gap: 4px; }
+.access-intern-copy strong { overflow: hidden; color: var(--ws-ink); font-size: 9px; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
+.access-intern-copy small { overflow: hidden; color: var(--ws-muted); font-size: 7px; text-overflow: ellipsis; white-space: nowrap; }
+.access-status-badge { width: fit-content; flex: 0 0 auto; padding: 4px 7px; border-radius: 999px; font-size: 7px; font-weight: 700; white-space: nowrap; }
+.status-ready, .status-granted { background: var(--ws-green-soft); color: var(--ws-green); }
+.status-in-progress, .status-pending { background: var(--ws-amber-soft); color: var(--ws-amber); }
+.status-not-assigned { background: var(--ws-blue-soft); color: var(--ws-muted); }
+.access-details-panel { min-height: 0; display: flex; flex-direction: column; gap: 18px; overflow-y: auto; overscroll-behavior: contain; scrollbar-color: var(--ws-border) transparent; scrollbar-width: thin; }
+.access-selected-info { display: flex; align-items: center; gap: 11px; padding-bottom: 14px; border-bottom: 1px solid var(--ws-border); }
+.access-avatar-large { width: 42px; height: 42px; flex-basis: 42px; border-radius: 12px; font-size: 11px; }
+.access-selected-copy { min-width: 0; flex: 1; }
+.access-selected-copy h2 { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.access-corporate-email { display: block; overflow: hidden; margin-top: 5px; color: var(--ws-secondary); font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
+.access-service-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+.access-service-row { min-width: 0; min-height: 55px; display: flex; align-items: center; gap: 9px; padding: 9px 11px; border: 1px solid var(--ws-border); border-radius: 9px; background: var(--ws-surface-strong); }
+.access-service-icon { flex: 0 0 auto; display: flex; color: var(--ws-blue); }
+.access-service-icon svg { width: 15px; height: 15px; }
+.access-service-row > strong { min-width: 0; flex: 1; overflow: hidden; color: var(--ws-secondary); font-size: 9px; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
+.access-empty-state { padding: 12px 4px; color: var(--ws-muted); font-size: 8px; }
+.access-error { color: var(--ws-amber); }
+.access-no-selection { align-self: stretch; display: flex; flex-direction: column; justify-content: center; }
+.sr-only { width: 1px; height: 1px; position: absolute; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
 .insights-page { grid-template-rows: auto auto auto; align-content: start; overflow-y: auto; padding-right: 4px; }
 .insights-page .module-heading { min-height: 0; align-items: flex-start; }
 .insights-page .module-heading > div { min-width: 0; }
@@ -461,6 +516,11 @@
 	.module-page { gap: 10px; }
 	.asset-management-page { gap: 13px; }
 	.asset-management-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+	.workspace-content:has(.access-management-page) { overflow-y: auto; }
+	.access-management-page { height: auto; min-height: 100%; gap: 10px; }
+	.access-workspace-grid { grid-template-columns: 1fr; grid-template-rows: minmax(240px, 35vh) auto; }
+	.access-directory-panel { min-height: 240px; }
+	.access-details-panel { overflow-y: visible; }
 	.documents-module-grid { gap: 7px; }
 	.document-module-card { padding: 9px; }
 }
@@ -471,6 +531,12 @@
 	.workspace-welcome p:last-child { font-size: 8px; }
 	.onboarding-summary { padding: 11px 13px 9px; }
 	.workspace-stat-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+	.access-management-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
+	.access-management-stats .workspace-stat { grid-template-columns: 1fr; padding: 7px 5px; }
+	.access-management-stats .stat-label { font-size: 6px; }
+	.access-management-stats .workspace-stat > strong { font-size: 12px; }
+	.access-search { width: 100%; }
+	.access-service-list { grid-template-columns: 1fr; }
 	.stat-label { font-size: 5px; }
 	.workspace-stat > strong { font-size: 11px; }
 	.topbar-date { display: none; }

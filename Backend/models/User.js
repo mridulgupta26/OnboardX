@@ -227,6 +227,69 @@ documents: {
   },
 },
 
+accessManagement: {
+  corporateEmail: {
+    value: {
+      type: String,
+      default: "",
+    },
+    status: {
+      type: String,
+      enum: ["Pending", "Granted"],
+      default: "Pending",
+    },
+  },
+
+  vpn: {
+    value: {
+      type: String,
+      default: "",
+    },
+    status: {
+      type: String,
+      enum: ["Pending", "Granted"],
+      default: "Pending",
+    },
+  },
+
+  outlook: {
+    value: {
+      type: String,
+      default: "",
+    },
+    status: {
+      type: String,
+      enum: ["Pending", "Granted"],
+      default: "Pending",
+    },
+  },
+
+  teams: {
+    value: {
+      type: String,
+      default: "",
+    },
+    status: {
+      type: String,
+      enum: ["Pending", "Granted"],
+      default: "Pending",
+    },
+  },
+
+  sharedDrive: {
+    value: {
+      type: String,
+      default: "",
+    },
+    status: {
+      type: String,
+      enum: ["Pending", "Granted"],
+      default: "Pending",
+    },
+  },
+},
+
+
 
 guideOpened: {
   type: Boolean,

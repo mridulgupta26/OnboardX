@@ -831,6 +831,63 @@ const returnAsset = async (req, res) => {
   }
 };
 
+const getAccessManagement = async (req, res) => {
+  try {
+
+    const user = await User.findOne({
+      email: req.params.email,
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    res.status(200).json(
+      user.accessManagement
+    );
+
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+const updateAccessManagement = async (
+  req,
+  res
+) => {
+  try {
+
+    const user = await User.findOne({
+      email: req.params.email,
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    user.accessManagement =
+      req.body.accessManagement;
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      accessManagement:
+        user.accessManagement,
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
 
 module.exports = {
   registerUser,
@@ -854,5 +911,7 @@ updateTask,
 deleteTask,
 getAllAssets,
 addAsset,
-returnAsset
+returnAsset,
+ getAccessManagement,
+  updateAccessManagement,
 };

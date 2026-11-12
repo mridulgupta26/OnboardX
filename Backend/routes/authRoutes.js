@@ -27,6 +27,8 @@ updateDocumentStatus,
 getAllAssets,
   addAsset,
   returnAsset,
+  getAccessManagement,
+updateAccessManagement,
 } = require("../controllers/authController");
 
 
@@ -90,5 +92,14 @@ router.post("/assets", addAsset);
 router.get("/assets", getAllAssets);
 
 router.put("/assets/:id", returnAsset);
+router.get(
+  "/access/:email",
+  getAccessManagement
+);
+
+router.put(
+  "/access/:email",
+  updateAccessManagement
+);
 
 module.exports = router;
