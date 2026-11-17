@@ -43,6 +43,13 @@ const modules = [
   path: "/hr-dashboard/assignments",
 },
 {
+  id:"internAssets",
+  label:"Intern Assets",
+  icon:"file",
+  path:"/hr-dashboard/intern-assets",
+
+},
+{
   id: "settings",
   label: "Settings",
   icon: "settings",
@@ -543,22 +550,49 @@ const filteredInterns = interns.filter(
 </div>
 
 <table className="hr-table">
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Email</th>
-      <th>Designation</th>
-      <th>Status</th>
-    </tr>
-  </thead>
+ <thead>
+  <tr>
+    <th>Name</th>
+    <th>Designation</th>
+    <th>Corporate Email</th>
+    <th>Outlook</th>
+    <th>Teams</th>
+    <th>VPN</th>
+    <th>Shared Drive</th>
+  </tr>
+</thead>
 
 <tbody>
-  {filteredInterns.map((intern) => (
+  {interns.map((intern) => (
     <tr key={intern._id}>
       <td>{intern.fullName}</td>
-      <td>{intern.email}</td>
-      <td>{intern.designation || "Intern"}</td>
-      <td>Active</td>
+
+      <td>{intern.designation}</td>
+
+      <td>
+        {intern.accessManagement?.corporateEmail?.value ||
+          "Not Assigned"}
+      </td>
+
+      <td>
+        {intern.accessManagement?.outlook?.value ||
+          "Not Assigned"}
+      </td>
+
+      <td>
+        {intern.accessManagement?.teams?.value ||
+          "Not Assigned"}
+      </td>
+
+      <td>
+        {intern.accessManagement?.vpn?.value ||
+          "Not Assigned"}
+      </td>
+
+      <td>
+        {intern.accessManagement?.sharedDrive?.value ||
+          "Not Assigned"}
+      </td>
     </tr>
   ))}
 </tbody>
@@ -569,6 +603,101 @@ const filteredInterns = interns.filter(
     </section>
   );
 }
+
+function InternAssetsModule() {
+  const [interns, setInterns] = useState([]);
+
+  useEffect(() => {
+  fetchInterns();
+}, []);
+
+const fetchInterns = async () => {
+  try {
+    const response = await axios.get(
+      "http://localhost:5000/api/auth/interns"
+    );
+
+    setInterns(response.data);
+  } catch (error) {
+    console.error(error);
+  }
+};
+  return(
+    <section className="module-page"> 
+    <div className="module-heading">
+    <div>
+      <p className="workspace-eyebrow">
+      INTERN ASSETS
+      </p>
+
+      <h1>Intern Assets</h1>
+
+      <p>View and manage all intern assets.</p>
+      </div>
+    </div>
+
+   < div className="workspace-panel">
+    <table className="hr-table">
+ <thead>
+  <tr>
+    <th>Name</th>
+    <th>Designation</th>
+    <th>Corporate Email</th>
+    <th>Outlook</th>
+    <th>Teams</th>
+    <th>VPN</th>
+    <th>Shared Drive</th>
+  </tr>
+</thead>
+
+  <tbody>
+ {interns.map((intern) => {
+  console.log(
+    "Access Management:",
+    intern.accessManagement
+  );
+
+  return (
+    <tr key={intern._id}>
+  <td>{intern.fullName}</td>
+
+  <td>{intern.designation}</td>
+
+  <td>
+    {intern.accessManagement?.corporateEmail?.value ||
+      "Not Assigned"}
+  </td>
+
+  <td>
+    {intern.accessManagement?.outlook?.value ||
+      "Not Assigned"}
+  </td>
+
+  <td>
+    {intern.accessManagement?.teams?.value ||
+      "Not Assigned"}
+  </td>
+
+  <td>
+    {intern.accessManagement?.vpn?.value ||
+      "Not Assigned"}
+  </td>
+
+  <td>
+    {intern.accessManagement?.sharedDrive?.value ||
+      "Not Assigned"}
+  </td>
+</tr>
+  );
+})}
+  </tbody>
+</table>
+
+      </div>
+      </section>
+  )
+}
+
 
 
 function ModulePage({
@@ -625,6 +754,8 @@ if (section === "growthtrack")
   if (section === "assignments")
   return <AssignTasksModule />;
 
+   if (section === "internAssets")
+  return <InternAssetsModule />;
 
   if (section === "settings")
     return <SettingsModule theme={theme} setTheme={setTheme} />;

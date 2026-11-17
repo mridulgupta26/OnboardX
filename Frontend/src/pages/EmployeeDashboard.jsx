@@ -87,6 +87,12 @@ const iconPaths = {
       <path d="M4 19.5h16M6.5 16V11m5.5 5V5m5.5 11V8" />
     </>
   ),
+  monitor: (
+    <>
+      <rect x="3" y="4" width="18" height="13" rx="2" />
+      <path d="M8 21h8m-4-4v4" />
+    </>
+  ),
   settings: (
     <>
       <circle cx="12" cy="12" r="3" />
@@ -134,10 +140,10 @@ const profileCompleted =
 
 const documentsCompleted =
   !!(
-    user?.documents?.aadhaar &&
-    user?.documents?.pan &&
-    user?.documents?.resume &&
-    user?.documents?.degree
+    user?.documents?.aadhaar?.url &&
+    user?.documents?.pan?.url &&
+    user?.documents?.resume?.url &&
+    user?.documents?.degree?.url
   );
 
 if (profileCompleted) completeTasks.push(0);
@@ -426,12 +432,12 @@ const profileCompleted =
     user?.city
   );
 
-  const documentsCompleted =
+const documentsCompleted =
   !!(
-    user?.documents?.aadhaar &&
-    user?.documents?.pan &&
-    user?.documents?.resume &&
-    user?.documents?.degree
+    user?.documents?.aadhaar?.url &&
+    user?.documents?.pan?.url &&
+    user?.documents?.resume?.url &&
+    user?.documents?.degree?.url
   );
 
   const visitedPages = JSON.parse(
@@ -517,7 +523,7 @@ if (securityCompleted) {
 };
 
   return (
-    <section className="module-page">
+  <section className="module-page tasks-page">
       <div className="module-heading">
         <div>
           <p className="workspace-eyebrow">YOUR CHECKLIST</p>
@@ -606,7 +612,7 @@ setUser(response.data.user);
           </div>
         ))}
       </div>
-      <section className="workspace-panel">
+      <section className="workspace-panel hr-assigned-panel">
         <div className="panel-heading">
           <div>
             <p className="workspace-eyebrow">YOUR WORK</p>
@@ -1145,7 +1151,7 @@ const getGrowthStreak = () => {
 const { currentStreak, activeToday } = getGrowthStreak();
 
  return (
-  <section className="module-page">
+   <section className="module-page tasks-page">
     <div
       className="module-heading"
       style={{
@@ -1396,10 +1402,16 @@ const { currentStreak, activeToday } = getGrowthStreak();
 
 function ITAssetsModule() {
   const [assets, setAssets] = useState([]);
+  const [assetsLoading, setAssetsLoading] = useState(true);
+  const [assetsError, setAssetsError] = useState("");
+  const [accessManagement, setAccessManagement] = useState(null);
+  const [accessLoading, setAccessLoading] = useState(true);
+  const [accessError, setAccessError] = useState("");
 
   const storedUser = JSON.parse(
     localStorage.getItem("onboardx-user")
   );
+  const internEmail = storedUser?.email;
 
   useEffect(() => {
     fetchAssets();
@@ -1417,69 +1429,183 @@ function ITAssetsModule() {
       );
 
       setAssets(myAssets);
+      setAssetsError("");
     } catch (error) {
       console.error(error);
+      setAssetsError("Unable to load assigned assets. Please try again.");
+    } finally {
+      setAssetsLoading(false);
     }
   };
 
+  useEffect(() => {
+    if (!internEmail) return undefined;
+
+    let isCurrent = true;
+    axios
+      .get(
+        `http://localhost:5000/api/auth/access/${encodeURIComponent(internEmail)}`
+      )
+      .then((response) => {
+        if (isCurrent) {
+          setAccessManagement(response.data || {});
+          setAccessError("");
+        }
+      })
+      .catch((error) => {
+        console.error("Unable to load access information:", error);
+        if (isCurrent) {
+          setAccessError("Unable to load access information. Please try again.");
+        }
+      })
+      .finally(() => {
+        if (isCurrent) setAccessLoading(false);
+      });
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [internEmail]);
+
+  const statuses = [...new Set(assets.map((asset) => asset.status).filter(Boolean))];
+  const assignmentDates = [
+    ...new Set(assets.map((asset) => asset.assignedDate).filter(Boolean)),
+  ];
+  const summaryStatus =
+    assets.length === 0
+      ? "—"
+      : statuses.length === 1
+        ? statuses[0]
+        : statuses.length > 1
+          ? "Multiple"
+          : "Not recorded";
+  const summaryAssignmentDate =
+    assets.length === 0
+      ? "—"
+      : assignmentDates.length === 1
+        ? assignmentDates[0]
+        : assignmentDates.length > 1
+          ? "Multiple dates"
+          : "Not recorded";
+  const accessItems = [
+    { name: "Corporate Email", access: accessManagement?.corporateEmail },
+    { name: "Outlook", access: accessManagement?.outlook },
+    { name: "Teams", access: accessManagement?.teams },
+    { name: "VPN", access: accessManagement?.vpn },
+    { name: "Shared Drive", access: accessManagement?.sharedDrive },
+  ];
+
   return (
-    <section className="module-page">
+    <section className="module-page it-assets-page">
       <div className="module-heading">
         <div>
-          <p className="workspace-eyebrow">
-            IT ASSETS
-          </p>
-
+          <p className="workspace-eyebrow">IT ASSETS</p>
           <h1>My IT Assets</h1>
-
-          <p>
-            Assets assigned by the IT team.
-          </p>
+          <p>Assets assigned by the IT team.</p>
         </div>
       </div>
 
-      <div className="workspace-panel">
+      <div className="it-assets-summary" aria-label="Asset summary">
+        <div className="it-assets-summary-item">
+          <span>Total Assets</span>
+          <strong>{assets.length}</strong>
+        </div>
+        <div className="it-assets-summary-item">
+          <span>Status</span>
+          <strong>{summaryStatus}</strong>
+        </div>
+        <div className="it-assets-summary-item">
+          <span>Assignment Date</span>
+          <strong>{summaryAssignmentDate}</strong>
+        </div>
+      </div>
 
-        {assets.length > 0 ? (
-          assets.map((asset) => (
-            <div
-              key={asset._id}
-              className="task-preview-row"
-            >
-              <span className="task-check">
-                💻
-              </span>
-
-              <span>
-                <strong>
-                  {asset.assetName}
-                </strong>
-
-                <small>
-                  Asset ID: {asset.assetId}
-                </small>
-
-                <small>
-                  Assigned On: {asset.assignedDate}
-                </small>
-              </span>
-
-              <span
-                className="hr-task-status"
-                style={{
-                  background: "#dcfce7",
-                  color: "#166534",
-                }}
-              >
-                {asset.status}
-              </span>
-            </div>
-          ))
+      <div className="it-assets-sections">
+        {assetsLoading ? (
+          <div className="it-assets-empty">
+            <p>Loading assigned assets...</p>
+          </div>
+        ) : assetsError ? (
+          <div className="it-assets-empty">
+            <p>{assetsError}</p>
+          </div>
+        ) : assets.length > 0 ? (
+          <div className="it-asset-list">
+            {assets.map((asset) => (
+              <article key={asset._id} className="it-asset-card">
+                <div className="it-asset-icon" aria-hidden="true">
+                  <Icon name="monitor" size={22} />
+                </div>
+                <div className="it-asset-body">
+                  <div className="it-asset-heading">
+                    <div>
+                      <p className="it-asset-kicker">ASSIGNED DEVICE</p>
+                      <h2>{asset.assetName || "Unnamed asset"}</h2>
+                    </div>
+                    <span className="it-asset-status">
+                      {asset.status || "Status not recorded"}
+                    </span>
+                  </div>
+                  <div className="it-asset-details">
+                    <div>
+                      <span>Asset ID</span>
+                      <strong>{asset.assetId || "Not recorded"}</strong>
+                    </div>
+                    <div>
+                      <span>Serial Number</span>
+                      <strong>
+                        {asset.serialNumber || asset.serialNo || "Not recorded"}
+                      </strong>
+                    </div>
+                    <div>
+                      <span>Assignment Date</span>
+                      <strong>{asset.assignedDate || "Not recorded"}</strong>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
         ) : (
-          <p>
-            No IT assets assigned yet.
-          </p>
+          <div className="it-assets-empty">
+            <p>No IT assets assigned yet.</p>
+          </div>
         )}
+
+        <section className="it-access-panel">
+          <div className="it-access-heading">
+            <p className="it-asset-kicker">ACCOUNT DETAILS</p>
+            <h2>Access &amp; Accounts</h2>
+          </div>
+          {!internEmail ? (
+            <p className="it-access-message">
+              Access information is unavailable. Please sign in again.
+            </p>
+          ) : accessLoading ? (
+            <p className="it-access-message">Loading access information...</p>
+          ) : accessError ? (
+            <p className="it-access-message it-access-error">{accessError}</p>
+          ) : (
+            <div className="it-access-grid">
+              {accessItems.map(({ name, access }) => {
+                const status = access?.status || "Pending";
+                const statusClass = status.toLowerCase().replace(/\s+/g, "-");
+
+                return (
+                  <article className="it-access-card" key={name}>
+                    <div className="it-access-card-heading">
+                      <h3>{name}</h3>
+                      <span className={`it-access-status status-${statusClass}`}>
+                        {status}
+                      </span>
+                    </div>
+                    <p>{access?.value || "Not Assigned"}</p>
+                  </article>
+                );
+              })}
+            </div>
+          )}
+        </section>
       </div>
     </section>
   );
@@ -1573,10 +1699,10 @@ const profileCompleted =
 
 const documentsCompleted =
   !!(
-    user?.documents?.aadhaar &&
-    user?.documents?.pan &&
-    user?.documents?.resume &&
-    user?.documents?.degree
+    user?.documents?.aadhaar?.url &&
+    user?.documents?.pan?.url &&
+    user?.documents?.resume?.url &&
+    user?.documents?.degree?.url
   );
 
   const updates = [];

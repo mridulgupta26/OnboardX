@@ -53,6 +53,12 @@ router.post(
   uploadDocument
 );
 
+router.delete(
+  "/delete-document/:email/:documentType",
+  deleteDocument
+);
+
+
 router.post(
   "/upload-profile-pic/:email",
   upload.single("profilePic"),

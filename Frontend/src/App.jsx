@@ -171,7 +171,7 @@ const itDashboardElement = (
   path="/hr-dashboard"
   element={hrDashboardElement}
 />
-    <Route path="/it-dashboard" element={itDashboardElement} />
+   
     <Route path="/manager-dashboard" element={dashboardElement} />
     <Route path="/profile" element={dashboardElement} />
     <Route path="/documents" element={dashboardElement} />
@@ -190,6 +190,11 @@ const itDashboardElement = (
 
     <Route
   path="/hr-dashboard/insights"
+  element={hrDashboardElement}
+/>
+
+<Route
+  path="/hr-dashboard/intern-assets"
   element={hrDashboardElement}
 />
 

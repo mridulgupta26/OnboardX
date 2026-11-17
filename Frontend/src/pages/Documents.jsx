@@ -162,6 +162,9 @@ const getVerificationBadge = (document) => {
 };
 
 const handleDelete = async (documentId) => {
+
+    console.log("DELETE CLICKED", documentId);
+    
   try {
     const storedUser = JSON.parse(
       localStorage.getItem("onboardx-user")

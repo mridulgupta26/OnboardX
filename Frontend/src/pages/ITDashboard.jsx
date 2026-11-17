@@ -48,12 +48,7 @@ const modules = [
     path: "/it-dashboard/access",
   },
 
-  {
-    id: "requests",
-    label: "IT Requests",
-    icon: "check",
-    path: "/it-dashboard/requests",
-  },
+
 
   {
     id: "settings",
