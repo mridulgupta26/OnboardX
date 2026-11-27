@@ -7,6 +7,8 @@ function Profile({ user, profilePic, selectedAvatar }) {
 
 
   const profile = user || {};
+  console.log(profile.manager);
+
   const displayName = profile.fullName || profile.name || profile.email || "Your account";
   const [isEditing, setIsEditing] = useState(false);
   
@@ -96,6 +98,7 @@ const fields = [
   ["Employee ID", profile.employeeId || "Not provided"],
   ["Department", profile.department || "Not provided"],
   ["Designation", profile.designation || "Not assigned"],
+  ["Reporting Manager", profile.manager || "Not assigned"],
 ];
 
   return (
@@ -305,16 +308,12 @@ const fields = [
     <span
       className="profile-skill"
       key={skill}
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "6px",
-      }}
     >
       {skill}
 
       {isEditing && (
         <button
+          className="profile-skill-remove"
           type="button"
           onClick={() =>
             setFormData({
@@ -324,15 +323,9 @@ const fields = [
               ),
             })
           }
-          style={{
-            border: "none",
-            background: "transparent",
-            color: "#ef4444",
-            cursor: "pointer",
-            fontWeight: "700",
-          }}
+          aria-label={`Remove ${skill}`}
         >
-          ✕
+          ×
         </button>
       )}
     </span>

@@ -21,6 +21,13 @@ function DocumentVerification() {
         (user) => user.role === "intern"
       );
 
+      console.log("INTERNS:", filteredInterns);
+      console.log(
+  "FIRST INTERN:",
+  filteredInterns[0]
+);
+
+
       setInterns(filteredInterns);
     } catch (error) {
       console.error(error);
@@ -213,6 +220,8 @@ const renderActions = (documentType, document) => {
   }}
 >
     {interns.map((intern) => (
+
+
       <div
         key={intern._id}
         onClick={() => setSelectedIntern(intern)}
@@ -226,18 +235,33 @@ const renderActions = (documentType, document) => {
           
         }}
       >
-      <div
+       <div
   style={{
     display: "flex",
     alignItems: "center",
-    gap: "8px",
+    gap: "10px",
   }}
 >
-  <span>
-    {getOverallStatus(
-      intern.documents
-    )}
-  </span>
+  {intern.profilePic ? (
+    <img
+      src={`http://localhost:5000/uploads/${intern.profilePic}`}
+      alt={intern.fullName}
+      style={{
+        width: "42px",
+        height: "42px",
+        borderRadius: "50%",
+        objectFit: "cover",
+      }}
+    />
+  ) : (
+    <span
+      style={{
+        fontSize: "30px",
+      }}
+    >
+      {intern.selectedAvatar || "👨‍💼"}
+    </span>
+  )}
 
   <strong>{intern.fullName}</strong>
 </div>

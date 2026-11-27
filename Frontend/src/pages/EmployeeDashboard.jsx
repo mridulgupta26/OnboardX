@@ -31,6 +31,8 @@ const modules = [
  
   { id: "settings", label: "Settings", icon: "settings", path: "/settings" },
 
+
+
   
 ];
 
@@ -57,13 +59,13 @@ const tasks = [
 
 const iconPaths = {
   grid: (
-    <>
-      <rect x="3" y="3" width="7" height="7" rx="1.5" />
-      <rect x="14" y="3" width="7" height="7" rx="1.5" />
-      <rect x="3" y="14" width="7" height="7" rx="1.5" />
-      <rect x="14" y="14" width="7" height="7" rx="1.5" />
-    </>
-  ),
+  <>
+    <path d="M4 4h6v6H4z" />
+    <path d="M14 4h6v6h-6z" />
+    <path d="M4 14h6v6H4z" />
+    <path d="M14 14h6v6h-6z" />
+  </>
+),
   person: (
     <>
       <circle cx="12" cy="8" r="3.5" />
@@ -105,6 +107,8 @@ const iconPaths = {
       <path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9m-8 12a2 2 0 0 0 4 0" />
     </>
   ),
+
+
 };
 
 function Icon({ name, size = 18 }) {
@@ -2069,7 +2073,15 @@ useEffect(() => {
               type="button"
               key={module.id}
               className={`workspace-nav-item${activeModule === module.id ? " is-active" : ""}`}
-              onClick={() => goTo(module.path)}
+              onClick={() => {
+  if (module.id === "logout") {
+    localStorage.clear();
+    navigate("/");
+    return;
+  }
+
+  goTo(module.path);
+}}
               aria-current={activeModule === module.id ? "page" : undefined}
             >
             <Icon name={module.icon} />
@@ -2143,6 +2155,17 @@ useEffect(() => {
               <i />
             </button>
             <span className="topbar-divider" />
+
+            <button
+  type="button"
+  className="topbar-logout"
+  onClick={() => {
+    localStorage.clear();
+    navigate("/");
+  }}
+>
+  Logout
+</button>
             <button
               className="topbar-identity"
               type="button"

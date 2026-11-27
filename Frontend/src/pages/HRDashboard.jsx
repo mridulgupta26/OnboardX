@@ -95,14 +95,14 @@ function InternProgressTooltip({ active, payload }) {
 }
 
 const iconPaths = {
-  grid: (
-    <>
-      <rect x="3" y="3" width="7" height="7" rx="1.5" />
-      <rect x="14" y="3" width="7" height="7" rx="1.5" />
-      <rect x="3" y="14" width="7" height="7" rx="1.5" />
-      <rect x="14" y="14" width="7" height="7" rx="1.5" />
-    </>
-  ),
+ grid: (
+  <>
+    <path d="M4 4h6v6H4z" />
+    <path d="M14 4h6v6h-6z" />
+    <path d="M4 14h6v6H4z" />
+    <path d="M14 14h6v6h-6z" />
+  </>
+),
   person: (
     <>
       <circle cx="12" cy="8" r="3.5" />
@@ -156,48 +156,7 @@ function Icon({ name, size = 18 }) {
 function DashboardHome({ role, user, profilePic, selectedAvatar, onNavigate }) {
  
 
-  const completeTasks = [];
-
-const profileCompleted =
-  !!(
-    user?.phone &&
-    user?.country &&
-    user?.state &&
-    user?.city
-  );
-
-const documentsCompleted =
-  !!(
-    user?.documents?.aadhaar &&
-    user?.documents?.pan &&
-    user?.documents?.resume &&
-    user?.documents?.degree
-  );
-
-if (profileCompleted) completeTasks.push(0);
-
-if (documentsCompleted) completeTasks.push(1);
-
-if (user?.workspaceCompleted)
-  completeTasks.push(2);
-
-if (user?.securityCompleted)
-  completeTasks.push(3);
-  const roleTitle =
-    role === "hr"
-      ? "HR"
-      : role === "it"
-        ? "IT"
-        : role === "manager"
-          ? "Manager"
-          : "Intern";
-  const displayName =
-    user?.fullName || user?.name || user?.email || "Your workspace";
-
-const progress = Math.round(
-  (completeTasks.length / 4) * 100
-);
-
+ 
   const [documentCount, setDocumentCount] = useState(null);
   const [interns, setInterns] = useState([]);
   const totalInterns = interns.length;
@@ -223,6 +182,42 @@ const pendingReviews = interns.reduce((count, intern) => {
     ).length
   );
 }, 0);
+
+const verifiedInterns = interns.filter(
+  (intern) => {
+    const docs = Object.values(
+      intern.documents || {}
+    );
+
+    return (
+      docs.length > 0 &&
+      docs.every(
+        (doc) => doc?.status === "Verified"
+      )
+    );
+  }
+).length;
+
+const internsWithTasks = interns.filter(
+  (intern) =>
+    (intern.assignedTasks || []).length > 0
+).length;
+
+const documentProgress =
+  totalInterns > 0
+    ? verifiedInterns / totalInterns
+    : 0;
+
+const taskProgress =
+  totalInterns > 0
+    ? internsWithTasks / totalInterns
+    : 0;
+
+const hrProgress = Math.round(
+  ((documentProgress + taskProgress) / 2) *
+    100
+);
+
 
 
 
@@ -309,7 +304,7 @@ useEffect(() => {
         <button
           className="welcome-profile"
           type="button"
-          onClick={() => onNavigate("/profile")}
+          onClick={() => onNavigate("/hr-dashboard")}
           aria-label="Open your profile"
         >
           {profilePic ? (
@@ -329,21 +324,27 @@ useEffect(() => {
 
          <h2>HR Operations Overview</h2>
           </div>
-         <span className="summary-number">
-  {totalInterns}
-  <small>Interns</small>
-</span>
+           <span className="summary-number">
+           {hrProgress}%
+          </span>
         </div>
         <div className="summary-track">
-          <span style={{ width: `${progress}%` }} />
+         <span
+  style={{
+    width: `${hrProgress}%`,
+  }}
+/>
         </div>
         <div className="summary-bottomline">
           <span>
   Track interns, verify documents and manage onboarding activities.
 </span>
-          <button type="button" onClick={() => onNavigate("/tasks")}>
-             View tasks <Icon name="arrow" size={15} />
-           </button>
+          <button
+  type="button"
+  onClick={() => onNavigate("/hr-dashboard/assignments")}
+>
+  Manage Tasks <Icon name="arrow" size={15} />
+</button>
         </div>
       </section>
 
@@ -479,9 +480,11 @@ function InternDirectoryModule() {
 
   const [interns, setInterns] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [managers, setManagers] = useState([]);
 
 useEffect(() => {
   fetchInterns();
+  fetchManagers();
 }, []);
 
 const fetchInterns = async () => {
@@ -495,6 +498,43 @@ const fetchInterns = async () => {
     console.error(error);
   }
 };
+
+const fetchManagers = async () => {
+  try {
+    const response = await axios.get(
+      "http://localhost:5000/api/auth/all-users"
+    );
+
+    const managerList = response.data.users.filter(
+      (user) => user.role === "manager"
+    );
+
+    console.log(managerList);
+
+    setManagers(managerList);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const assignManager = async (
+  internId,
+  managerName
+) => {
+  try {
+    await axios.put(
+      `http://localhost:5000/api/auth/assign-manager/${internId}`,
+      {
+        manager: managerName,
+      }
+    );
+
+    fetchInterns();
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 const filteredInterns = interns.filter(
   (intern) =>
     intern.fullName
@@ -552,13 +592,11 @@ const filteredInterns = interns.filter(
 <table className="hr-table">
  <thead>
   <tr>
-    <th>Name</th>
-    <th>Designation</th>
-    <th>Corporate Email</th>
-    <th>Outlook</th>
-    <th>Teams</th>
-    <th>VPN</th>
-    <th>Shared Drive</th>
+   <th>Name</th>
+  <th>Designation</th>
+   <th>Manager</th>
+   <th>Assign Manager</th>
+    <th>Status</th>
   </tr>
 </thead>
 
@@ -569,30 +607,39 @@ const filteredInterns = interns.filter(
 
       <td>{intern.designation}</td>
 
-      <td>
-        {intern.accessManagement?.corporateEmail?.value ||
-          "Not Assigned"}
-      </td>
+   <td>
+  {intern.manager || "Not Assigned"}
+</td>
+<td>
+  <select
+  className="hr-search"
+  onChange={(e) =>
+    assignManager(
+      intern._id,
+      e.target.value
+    )
+  }
+>
+  <option value="">
+    Select Manager
+  </option>
 
-      <td>
-        {intern.accessManagement?.outlook?.value ||
-          "Not Assigned"}
-      </td>
+  {managers.map((manager) => (
+    <option
+      key={manager._id}
+      value={manager.fullName}
+    >
+      {manager.fullName}
+    </option>
+  ))}
+</select>
+</td>
 
-      <td>
-        {intern.accessManagement?.teams?.value ||
-          "Not Assigned"}
-      </td>
-
-      <td>
-        {intern.accessManagement?.vpn?.value ||
-          "Not Assigned"}
-      </td>
-
-      <td>
-        {intern.accessManagement?.sharedDrive?.value ||
-          "Not Assigned"}
-      </td>
+<td>
+  {intern.manager
+    ? "Assigned"
+    : "Pending"}
+</td>
     </tr>
   ))}
 </tbody>
@@ -606,9 +653,11 @@ const filteredInterns = interns.filter(
 
 function InternAssetsModule() {
   const [interns, setInterns] = useState([]);
+ 
 
-  useEffect(() => {
+useEffect(() => {
   fetchInterns();
+  
 }, []);
 
 const fetchInterns = async () => {
@@ -659,6 +708,7 @@ const fetchInterns = async () => {
 
   return (
     <tr key={intern._id}>
+    
   <td>{intern.fullName}</td>
 
   <td>{intern.designation}</td>
@@ -688,6 +738,7 @@ const fetchInterns = async () => {
       "Not Assigned"}
   </td>
 </tr>
+
   );
 })}
   </tbody>
@@ -2083,16 +2134,38 @@ useEffect(() => {
 
 const totalInterns = interns.length;
 
-const verifiedInterns = interns.filter((intern) => {
-  const docs = Object.values(
-    intern.documents || {}
-  );
-
-  return docs.length > 0 &&
-    docs.every(
-      (doc) => doc?.status === "Verified"
+const verifiedInterns = interns.filter(
+  (intern) => {
+    const docs = Object.values(
+      intern.documents || {}
     );
-}).length;
+
+    return (
+      docs.length > 0 &&
+      docs.every(
+        (doc) => doc?.status === "Verified"
+      )
+    );
+  }
+).length;
+
+
+const documentProgress =
+  totalInterns > 0
+    ? verifiedInterns / totalInterns
+    : 0;
+
+const taskProgress =
+  totalInterns > 0
+    ? internsWithTasks / totalInterns
+    : 0;
+
+const hrProgress = Math.round(
+  ((documentProgress +
+    taskProgress) /
+    2) *
+    100
+);
 
 const pendingReviews = interns.reduce(
   (count, intern) => {
@@ -2109,6 +2182,16 @@ const pendingReviews = interns.reduce(
   },
   0
 );
+
+
+
+const internsWithTasks = interns.filter(
+  (intern) =>
+    (intern.assignedTasks || []).length > 0
+).length;
+
+
+
 
 const avgProgress =
   totalInterns > 0
@@ -2638,9 +2721,19 @@ useEffect(() => {
             </button>
             <span className="topbar-divider" />
             <button
+              type="button"
+              className="topbar-logout"
+              onClick={() => {
+                localStorage.clear();
+                navigate("/");
+              }}
+            >
+              Logout
+            </button>
+            <button
               className="topbar-identity"
               type="button"
-              onClick={() => goTo("/profile")}
+             onClick={() => goTo("/hr-dashboard")}
             >
               <span>
                 {profilePic ? <img src={profilePic} alt="" /> : selectedAvatar}

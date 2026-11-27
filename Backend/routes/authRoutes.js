@@ -29,6 +29,8 @@ getAllAssets,
   returnAsset,
   getAccessManagement,
 updateAccessManagement,
+assignManager,
+assignLearningPath,
 } = require("../controllers/authController");
 
 
@@ -66,6 +68,11 @@ router.post(
 );
 
 router.post("/assign-task", assignTask);
+
+router.post(
+  "/assign-learning-path",
+  assignLearningPath
+);
 
 router.put(
   "/update-task/:email/:taskId",
@@ -106,6 +113,11 @@ router.get(
 router.put(
   "/access/:email",
   updateAccessManagement
+);
+
+router.put(
+  "/assign-manager/:id",
+  assignManager
 );
 
 module.exports = router;

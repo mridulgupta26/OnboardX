@@ -358,6 +358,27 @@ assignedTasks: [
   },
 ],
 
+learningPaths: [
+  {
+    title: {
+      type: String,
+      required: true,
+    },
+
+    status: {
+      type: String,
+      enum: ["Pending", "Completed"],
+      default: "Pending",
+    },
+
+    assignedBy: {
+      type: String,
+      default: "",
+    },
+  },
+],
+
+
 growthActivityDates: {
   type: [String],
   default: [],

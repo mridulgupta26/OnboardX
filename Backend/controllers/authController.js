@@ -83,6 +83,7 @@ const registerUser = async (req, res) => {
   }
 };
 
+
 const verifyOtp = async (req, res) => {
   try {
     const { email, otp } = req.body;
@@ -713,6 +714,45 @@ console.log(
   }
 };
 
+const assignLearningPath = async (req, res) => {
+  try {
+    console.log("ASSIGN LEARNING PATH HIT");
+    console.log(req.body);
+    const { email, title, assignedBy } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        message: "Intern not found",
+      });
+    }
+
+    user.learningPaths.push({
+      title,
+      status: "Pending",
+      assignedBy,
+    });
+
+    await user.save();
+
+    console.log("PATHS:", user.learningPaths);
+
+    res.status(200).json({
+      success: true,
+      message: "Learning path assigned successfully",
+      user,
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: "Server Error",
+    });
+  }
+};
+
 const updateTask = async (req, res) => {
   try {
     const { email, taskId } = req.params;
@@ -889,6 +929,30 @@ const updateAccessManagement = async (
   }
 };
 
+
+const assignManager = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { manager } = req.body;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      {
+        manager,
+      },
+      {
+        new: true,
+      }
+    );
+
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
@@ -914,4 +978,6 @@ addAsset,
 returnAsset,
  getAccessManagement,
   updateAccessManagement,
+  assignManager,
+  assignLearningPath,
 };

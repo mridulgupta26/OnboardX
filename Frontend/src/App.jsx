@@ -13,6 +13,7 @@ import { useEffect } from "react";
 import axios from "axios";
 import HRDashboard from "./pages/HRDashboard";
 import ITDashboard from "./pages/ITDashboard";
+import ManagerDashboard from "./pages/ManagerDashboard";
 
 function readStoredUser() {
   try {
@@ -118,6 +119,21 @@ const itDashboardElement = (
   />
 );
 
+
+const managerDashboardElement = (
+  <ManagerDashboard
+    theme={theme}
+    setTheme={setTheme}
+    profilePic={profilePic}
+    setProfilePic={setProfilePic}
+    selectedAvatar={selectedAvatar}
+    setSelectedAvatar={setSelectedAvatar}
+    user={user}
+    setUser={setUser}
+  />
+);
+
+
   return (
     <div className={theme}>
 
@@ -172,7 +188,7 @@ const itDashboardElement = (
   element={hrDashboardElement}
 />
    
-    <Route path="/manager-dashboard" element={dashboardElement} />
+    
     <Route path="/profile" element={dashboardElement} />
     <Route path="/documents" element={dashboardElement} />
     <Route path="/tasks" element={dashboardElement} />
@@ -222,6 +238,47 @@ const itDashboardElement = (
 <Route
   path="/it-dashboard/requests"
   element={itDashboardElement}
+/>
+
+
+<Route
+  path="/manager-dashboard"
+  element={managerDashboardElement}
+/>
+
+<Route
+  path="/manager-dashboard/interns"
+  element={managerDashboardElement}
+/>
+
+<Route
+  path="/manager-dashboard/learning"
+  element={managerDashboardElement}
+/>
+
+<Route
+  path="/manager-dashboard/kt-sessions"
+  element={managerDashboardElement}
+/>
+
+<Route
+  path="/manager-dashboard/shadow-tasks"
+  element={managerDashboardElement}
+/>
+
+<Route
+  path="/manager-dashboard/projects"
+  element={managerDashboardElement}
+/>
+
+<Route
+  path="/manager-dashboard/settings"
+  element={managerDashboardElement}
+/>
+
+<Route
+  path="/manager-dashboard/insights"
+  element={managerDashboardElement}
 />
 
 

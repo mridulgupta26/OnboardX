@@ -60,14 +60,14 @@ const modules = [
 
 const tasks = [
   {
-    name: "Complete your profile",
-    category: "PERSONAL DETAILS",
+    name: "Complete access profile",
+    category: "ACCESS",
     due: "Today",
     done: false,
   },
   {
-    name: "Submit Required Documents",
-    category: "DOCUMENTS",
+    name: "Set Up System Access",
+    category: "SYSTEM ACCESS",
     due: "Today",
     done: false,
   },
@@ -87,8 +87,8 @@ function InternProgressTooltip({ active, payload }) {
   return (
     <div className="intern-progress-tooltip">
       <strong>{intern.name}</strong>
-      <span>Uploaded Documents <b>{intern.uploadedDocs}</b></span>
-      <span>Verified Documents <b>{intern.verifiedDocs}</b></span>
+      <span>Assets Assigned <b>{intern.uploadedDocs}</b></span>
+      <span>Access Requests <b>{intern.verifiedDocs}</b></span>
       <span>Completed Tasks <b>{intern.completedTasks}</b></span>
       <span>Progress <b>{intern.progress}%</b></span>
     </div>
@@ -96,14 +96,15 @@ function InternProgressTooltip({ active, payload }) {
 }
 
 const iconPaths = {
-  grid: (
-    <>
-      <rect x="3" y="3" width="7" height="7" rx="1.5" />
-      <rect x="14" y="3" width="7" height="7" rx="1.5" />
-      <rect x="3" y="14" width="7" height="7" rx="1.5" />
-      <rect x="14" y="14" width="7" height="7" rx="1.5" />
-    </>
-  ),
+grid: (
+  <>
+    <path d="M4 4h6v6H4z" />
+    <path d="M14 4h6v6h-6z" />
+    <path d="M4 14h6v6H4z" />
+    <path d="M14 14h6v6h-6z" />
+  </>
+),
+
   person: (
     <>
       <circle cx="12" cy="8" r="3.5" />
@@ -155,64 +156,20 @@ function Icon({ name, size = 18 }) {
 }
 
 function DashboardHome({ role, user, profilePic, selectedAvatar, onNavigate }) {
- 
-
-  const completeTasks = [];
-
-const profileCompleted =
-  !!(
-    user?.phone &&
-    user?.country &&
-    user?.state &&
-    user?.city
-  );
-
-const documentsCompleted =
-  !!(
-    user?.documents?.aadhaar &&
-    user?.documents?.pan &&
-    user?.documents?.resume &&
-    user?.documents?.degree
-  );
-
-if (profileCompleted) completeTasks.push(0);
-
-if (documentsCompleted) completeTasks.push(1);
-
-if (user?.workspaceCompleted)
-  completeTasks.push(2);
-
-if (user?.securityCompleted)
-  completeTasks.push(3);
-  const roleTitle =
-    role === "hr"
-      ? "HR"
-      : role === "it"
-        ? "IT"
-        : role === "manager"
-          ? "Manager"
-          : "Intern";
-  const displayName =
-    user?.fullName || user?.name || user?.email || "Your workspace";
-
-const progress = Math.round(
-  (completeTasks.length / 4) * 100
-);
 
   const [documentCount, setDocumentCount] = useState(null);
-  const [interns, setInterns] = useState([]);
-  const totalInterns = interns.length;
+const [interns, setInterns] = useState([]);
+const [assets, setAssets] = useState([]);
 
-  const pendingDocuments = interns.reduce((count, intern) => {
-  const docs = intern.documents || {};
+const currentTimeLabel = new Date().toLocaleTimeString(
+  "en-IN",
+  {
+    hour: "2-digit",
+    minute: "2-digit",
+  }
+);
 
-  return (
-    count +
-    Object.values(docs).filter(
-      (doc) => doc?.status === "Pending"
-    ).length
-  );
-}, 0);
+const totalInterns = interns.length;
 
 const pendingReviews = interns.reduce((count, intern) => {
   const docs = intern.documents || {};
@@ -224,6 +181,66 @@ const pendingReviews = interns.reduce((count, intern) => {
     ).length
   );
 }, 0);
+
+
+const assignedAssets = assets.filter(
+  (asset) => asset.status === "Assigned"
+).length;
+
+const grantedAccess = interns.reduce(
+  (count, intern) => {
+    const access = intern.accessManagement || {};
+
+    return (
+      count +
+      Object.values(access).filter(
+        (item) => item?.status === "Granted"
+      ).length
+    );
+  },
+  0
+);
+
+const totalPossibleAssets = totalInterns;
+
+const totalPossibleAccess =
+  totalInterns * 5;
+
+const completedWork =
+  assignedAssets + grantedAccess;
+
+const totalWork =
+  totalPossibleAssets +
+  totalPossibleAccess;
+
+const itProgress =
+  totalWork > 0
+    ? Math.round(
+        (completedWork / totalWork) * 100
+      )
+    : 0;
+
+
+
+const pendingAccessRequests = interns.reduce(
+
+
+  (count, intern) => {
+    const access = intern.accessManagement || {};
+
+    return (
+      count +
+      Object.values(access).filter(
+        (item) => item?.status === "Pending"
+      ).length
+    );
+  },
+  0
+);
+
+const pendingAssetAssignments = assets.filter(
+  (asset) => asset.status === "Available"
+).length;
 
 
 
@@ -248,7 +265,16 @@ const pendingReviews = interns.reduce((count, intern) => {
 
 useEffect(() => {
   fetchInterns();
+  fetchAssets();
+
+  const interval = setInterval(() => {
+    fetchInterns();
+    fetchAssets();
+  }, 10000);
+
+  return () => clearInterval(interval);
 }, []);
+
 
   useEffect(() => {
     let cancelled = false;
@@ -288,6 +314,18 @@ useEffect(() => {
       cancelled = true;
     };
   }, [user?.email]);
+
+  const fetchAssets = async () => {
+  try {
+    const response = await axios.get(
+      "http://localhost:5000/api/auth/assets"
+    );
+
+    setAssets(response.data);
+  } catch (error) {
+    console.error(error);
+  }
+};
  
   
 
@@ -295,22 +333,20 @@ useEffect(() => {
     <div className="workspace-home">
       <header className="workspace-welcome">
         <div>
-         <p className="workspace-eyebrow">
-         IT OPERATIONS
-       </p>
+        
 
       <h1>
        Welcome back, IT Team
       </h1>
 
        <p>
-        Manage technical onboarding, assets and system access.
+        Manage IT provisioning, assets and system access.
         </p>
         </div>
         <button
           className="welcome-profile"
           type="button"
-          onClick={() => onNavigate("/profile")}
+         onClick={() => goTo("/it-dashboard")}
           aria-label="Open your profile"
         >
           {profilePic ? (
@@ -321,32 +357,47 @@ useEffect(() => {
         </button>
       </header>
 
-      <section className="onboarding-summary" aria-label="Onboarding progress">
-        <div className="summary-topline">
-          <div>
-           <span className="summary-kicker">
-              IT OVERVIEW
-          </span>
+      <section
+  className="onboarding-summary"
+  aria-label="IT onboarding progress"
+>
+  <div className="summary-topline">
+    <div>
+      <span className="summary-kicker">
+        IT OVERVIEW
+      </span>
 
-        <h2>IT Operations Overview</h2>
-          </div>
-         <span className="summary-number">
-  {totalInterns}
-  <small>Interns</small>
-</span>
-        </div>
-        <div className="summary-track">
-          <span style={{ width: `${progress}%` }} />
-        </div>
-        <div className="summary-bottomline">
-          <span>
-  Track interns, verify documents and manage onboarding activities.
-</span>
-          <button type="button" onClick={() => onNavigate("/tasks")}>
-             View tasks <Icon name="arrow" size={15} />
-           </button>
-        </div>
-      </section>
+      <h2>IT Operations Overview</h2>
+    </div>
+
+    <span className="summary-number">
+      {itProgress}%
+    </span>
+  </div>
+
+  <div className="summary-track">
+    <span
+      style={{
+        width: `${itProgress}%`,
+      }}
+    />
+  </div>
+
+  <div className="summary-bottomline">
+    <span>
+      Track asset assignment and access provisioning progress.
+    </span>
+
+    <button
+      type="button"
+      onClick={() =>
+        onNavigate("/it-dashboard/access")
+      }
+    >
+      Manage Access <Icon name="arrow" size={15} />
+    </button>
+  </div>
+</section>
 
       <div className="workspace-stat-grid">
         <div className="workspace-stat">
@@ -357,10 +408,11 @@ useEffect(() => {
            Total Interns
          </span>
 
-         <strong>
+        <strong>
   {totalInterns}
-  <small> /Active</small>
+  <small> Active</small>
 </strong>
+
 
         </div>
 
@@ -368,27 +420,31 @@ useEffect(() => {
           <span className="stat-icon stat-green">
             <Icon name="file" />
           </span>
-
           <span className="stat-label">
-           IT Ready
-          </span>
+  Assets Assigned
+</span>
 
-          <strong>
-  {pendingDocuments}
-  <small> / Pending</small>
+<strong>
+  {assignedAssets}
+  <small> Assigned</small>
 </strong>
+
+
         </div>
 
         <div className="workspace-stat">
           <span className="stat-icon stat-amber">
             <Icon name="person" />
           </span>
-          <span className="stat-label">
-          Pending Setup
-        </span>
-         <strong className="stat-role">
-  {pendingReviews} Open
+           <span className="stat-label">
+  Access Requests
+</span>
+
+<strong className="stat-role">
+ {pendingAccessRequests}  Open
 </strong>
+
+
         </div>
       </div>
 
@@ -400,7 +456,7 @@ useEffect(() => {
                 INTERN DIRECTORY
              </p>
 
-             <h2>Recently Provisioned Interns</h2>
+             <h2>Recent Interns</h2>
 
             </div>
             <button
@@ -408,7 +464,7 @@ useEffect(() => {
               className="text-action"
              onClick={() => onNavigate("/it-dashboard/assets")}
             >
-             View All <Icon name="arrow" size={14} />
+             View Assets <Icon name="arrow" size={14} />
             </button>
           </div>
     <div className="task-preview-list">
@@ -445,33 +501,45 @@ useEffect(() => {
 
  
         <section className="workspace-panel activity-preview">
-          <div className="panel-heading">
-            <div>
-              <p className="panel-eyebrow">JOURNEY TIMELINE</p>
-             <h2>Recent IT Activity</h2>
-            </div>
-            <span className="activity-live">
-              <i /> LIVE
-            </span>
-          </div>
-          <div className="activity-line">
-            <span className="activity-marker marker-green" />
-            <span>
-              <strong>VPN Access Pending</strong>
-               <small>3 interns awaiting VPN activation</small>
-            </span>
-            <time>Today</time>
-          </div>
-          <div className="activity-line">
-            <span className="activity-marker marker-blue" />
-            <span>
-             <strong>Laptop Allocation Pending</strong>
-             <small>2 laptops pending allocation</small>
-            </span>
+  <div className="panel-heading">
+    <div>
+      <p className="panel-eyebrow">IT ACTIVITY</p>
+      <h2>Recent IT Activity</h2>
+    </div>
 
-            <time>Today</time>
-          </div>
-        </section>
+    <span className="activity-live">
+      <i /> LIVE
+    </span>
+  </div>
+
+  <div className="activity-line">
+    <span className="activity-marker marker-green" />
+
+    <span>
+      <strong>System Access Setup</strong>
+
+      <small>
+        {pendingAccessRequests} accounts pending activation
+      </small>
+    </span>
+
+    <time>{currentTimeLabel}</time>
+  </div>
+
+  <div className="activity-line">
+    <span className="activity-marker marker-blue" />
+
+    <span>
+      <strong>Device Allocation Queue</strong>
+
+      <small>
+        {pendingAssetAssignments} assets awaiting assignment
+      </small>
+    </span>
+
+    <time>{currentTimeLabel}</time>
+  </div>
+</section>
       </div>
     </div>
   );
@@ -481,6 +549,8 @@ function InternDirectoryModule() {
 
   const [interns, setInterns] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+
+
 
 useEffect(() => {
   fetchInterns();
@@ -641,6 +711,7 @@ const fetchInterns = async () => {
   const assignedAssets = assets.filter(
     (asset) => asset.status === "Assigned"
   ).length;
+ 
 
   const availableAssets = assets.filter(
     (asset) => asset.status === "Available"
@@ -1501,9 +1572,9 @@ if (securityCompleted) {
     <section className="module-page">
       <div className="module-heading">
         <div>
-          <p className="workspace-eyebrow">YOUR CHECKLIST</p>
-          <h1>Your tasks</h1>
-          <p>Small steps, a confident start.</p>
+          <p className="workspace-eyebrow">IT OPERATIONS CHECKLIST</p>
+          <h1>IT Setup Tasks</h1>
+          <p>Track access, security and workspace setup tasks.</p>
         </div>
         <span className="module-count">
           {items.length - done.length} remaining
@@ -1932,7 +2003,7 @@ function GrowthTrackModule({ user, setUser }) {
   const task = goals[index];
 
   if (!task?._id || !user?.email) {
-    setError("Goal details are unavailable. Reopen Growth Track.");
+    setError("Goal details are unavailable. Reopen IT Readiness.");
     return;
   }
 
@@ -2080,13 +2151,13 @@ const { currentStreak, activeToday } = getGrowthStreak();
     >
       <div>
         <p className="workspace-eyebrow">
-          PERSONAL GROWTH
+          IT READINESS
         </p>
 
-        <h1>Growth Track</h1>
+        <h1>IT Readiness</h1>
 
         <p>
-          Set goals, track learning and celebrate achievements.
+          Track IT readiness goals and celebrate completed milestones.
         </p>
       </div>
 
@@ -2836,8 +2907,8 @@ const documentsCompleted =
 
 if (profileCompleted) {
   updates.push({
-    label: "Profile completed",
-    detail: "Your onboarding profile is ready",
+    label: "Access profile completed",
+    detail: "Your IT provisioning profile is ready",
     time: "Completed",
     color: "marker-green",
   });
@@ -2845,8 +2916,8 @@ if (profileCompleted) {
 
 if (documentsCompleted) {
   updates.push({
-    label: "Documents uploaded",
-    detail: "Required onboarding documents submitted",
+    label: "Provisioning details submitted",
+    detail: "Required IT setup details are available",
     time: "Done",
     color: "marker-blue",
   });
@@ -2863,8 +2934,8 @@ if (user?.securityCompleted) {
 
 if (user?.personalTasks?.length > 0) {
   updates.push({
-    label: "Growth Track started",
-    detail: "Learning goals and notes are being tracked",
+    label: "IT Readiness started",
+    detail: "IT readiness tasks and notes are being tracked",
     time: "Active",
     color: "marker-amber",
   });
@@ -2872,7 +2943,7 @@ if (user?.personalTasks?.length > 0) {
 
 if (currentStreak > 0) {
   updates.push({
-    label: "Growth streak active",
+    label: "IT readiness streak active",
     detail: `Current streak: ${currentStreak} day${currentStreak > 1 ? "s" : ""}`,
     time: "🔥",
     color: "marker-green",
@@ -2884,13 +2955,13 @@ if (currentStreak > 0) {
       <div className="module-heading">
         <div>
             <p className="panel-eyebrow">
-  ONBOARDING INSIGHTS
+  IT OPERATIONS INSIGHTS
 </p>
 
-<h2>Onboarding Insights</h2>
+<h2>IT Operations Insights</h2>
 
 <p>
-Monitor intern onboarding progress, pending reviews and team activities.
+Monitor IT provisioning progress, access requests and team activities.
 </p>
 
 
@@ -2899,7 +2970,7 @@ Monitor intern onboarding progress, pending reviews and team activities.
 
 
 <div className="workspace-panel onboarding-chart-panel">
-  <h2>Intern Onboarding Progress</h2>
+  <h2>IT Provisioning Progress</h2>
 
   <div className="onboarding-chart-scroll">
     <div
@@ -3094,7 +3165,7 @@ useEffect(() => {
 
   const activeLabel =
     activeModule === "activity"
-      ? "Onboarding Insights"
+      ? "IT Operations Insights"
       : modules.find((module) => module.id === activeModule)?.label ||
         "Dashboard";
   const goTo = (path) => {
@@ -3138,7 +3209,7 @@ useEffect(() => {
         >
           <span className="workspace-brand-mark">OX</span>
           <span>
-            OnboardX<small>PEOPLE WORKSPACE</small>
+            OnboardX<small>IT OPERATIONS</small>
           </span>
         </button>
         <div className="sidebar-person">
@@ -3244,16 +3315,7 @@ useEffect(() => {
               {module.id === "tasks" && <span className="nav-count">4</span>}
             </button>
           ))}
-          <p className="nav-label nav-label-bottom">YOUR TEAM</p>
-          <button
-            type="button"
-            className={`workspace-nav-item${activeModule === "activity" ? " is-active" : ""}`}
-            onClick={() =>goTo("/it-dashboard")}
-          >
-            <Icon name="bell" />
-            <span>Onboarding Insights</span>
-            <span className="nav-unread" />
-          </button>
+        
         </nav>
         <footer className="sidebar-footer">
           <div className="sidebar-secure">
@@ -3292,20 +3354,22 @@ useEffect(() => {
   </span>
 </span>
 
-            <button
-              className="topbar-help"
-              type="button"
-              onClick={() => goTo("/it-dashboard/insights")}
-              aria-label="Open recent activity"
-            >
-              <Icon name="bell" />
-              <i />
-            </button>
+          
             <span className="topbar-divider" />
+            <button
+              type="button"
+              className="topbar-logout"
+              onClick={() => {
+                localStorage.clear();
+                navigate("/");
+              }}
+            >
+              Logout
+            </button>
             <button
               className="topbar-identity"
               type="button"
-              onClick={() => goTo("/profile")}
+             onClick={() => goTo("/it-dashboard")}
             >
               <span>
                 {profilePic ? <img src={profilePic} alt="" /> : selectedAvatar}
